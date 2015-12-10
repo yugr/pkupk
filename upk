@@ -1,0 +1,127 @@
+#!/bin/sh
+
+# Unpacks files from archives of various types.
+# For details run without arguments.
+# 
+# TODO:
+# - support more popular formats (http://en.wikipedia.org/wiki/List_of_archive_formats)
+# - FIXMEs
+# - options (e.g. override destination dir, force unnesting, -h, options for archiver, etc.)
+# - support .gz files (?)
+
+set -e
+
+error() {
+  echo >&2 "$(basename $0): error: $@"
+  exit 1
+}
+
+warn() {
+  echo >&2 "$(basename $0): warning: $@"
+}
+
+isemptydir() {
+  test -d "$1" && test $(find "$1" -maxdepth 0 -empty)
+}
+
+strip_ext() {
+  # Handle things like glibc-2.20.tar.bz2
+  noext="${1%.*}"
+  noext="${noext%.tar}"
+  echo "$noext"
+}
+
+# Detect situations where it makes sense to unnest subfolder
+# e.g. glibc-2.20/glibc-2.20
+maybe_unnest() {
+  d=$(ls -1 "$1")
+  if [ $(echo "$d" | wc -l) -eq 1 -a "$d" = $(basename "$1") ]; then
+    d=$(ls -1 "$1")
+    for f in $(ls -A "$1/$d"); do   # Respect hidden files
+      # FIXME: mv will fail if one of $f matches $d
+      mv "$1/$d/$f" "$1/$(basename $f)"
+    done
+    rmdir "$1/$d"
+  fi
+}
+
+print_help_and_exit() {
+  cat <<EOF
+Syntax: $me FILE...
+Unpacks archives of various types (based on extension of FILE).
+
+Supported archives: .tar*, .zip, .jar, .apk, .7z, .rar, .deb, .rpm, .a.
+
+Example:
+  $ pk my.tar.gz 1.txt 2.txt
+  $ upk my.tar.gz
+  $ ls my/
+  1.txt 2.txt
+EOF
+  exit 1
+}
+
+me=$(basename $0)
+
+curdir="$PWD"
+
+test $# -eq 0 && print_help_and_exit
+
+for src; do
+  src=$(readlink -f "$src")
+  src_no_ext=$(strip_ext $(basename "$src"))
+
+  # Nest
+  mkdir -p $src_no_ext
+  if ! isemptydir "$src_no_ext"; then
+    error "cowardly refusing to clear original contents of $src_no_ext"
+  fi
+  cd $src_no_ext
+
+  # Unpack
+  case "$src" in
+    *.tar)
+      tar xf "$src"
+      ;;
+    *.tar.gz | *.tgz)
+      tar xzf "$src"
+      ;;
+    *.tar.bz2 | *.tbz2)
+      tar xjf "$src"
+      ;;
+    *.tar.xz | *.txz)
+      tar xJf "$src"
+      ;;
+#    *.gz)
+#      gunzip "$src"
+#      ;;
+    *.zip | *.jar | *.apk)
+      unzip "$src"
+      ;;
+    *.7z)
+      7zr x "$src"
+      ;;
+    *.rar)
+      unrar e "$src"
+      ;;
+    *.deb)
+      dpkg -x "$src" .
+      ;;
+    *.rpm)
+      rpm2cpio "$1" | cpio -id
+      ;;
+    *.a)
+      ar x "$1"
+      ;;
+    *)
+      cd $curdir
+      rmdir $src_no_ext
+      error "unsupported archive: $src"
+      ;;
+  esac
+
+  maybe_unnest "$PWD"
+
+  cd $curdir
+done
+

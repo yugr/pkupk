@@ -1,0 +1,126 @@
+#!/bin/sh
+
+# Packs files to archive OUT. Format is determined from extension of OUT.
+# For details run without arguments.
+
+set -e
+
+error() {
+  echo >&2 "$(basename $0): error: $@"
+  exit 1
+}
+
+warn() {
+  echo >&2 "$(basename $0): warning: $@"
+}
+
+isemptydir() {
+  #test $(ls -A "$1" | wc -l) = 0
+  test -d "$1" && test $(find "$1" -maxdepth 0 -empty)
+}
+
+strip_ext() {
+  # Handle things like glibc-2.20.tar.bz2
+  noext="${1%.*}"
+  noext="${noext%.tar}"
+  echo "$noext"
+}
+
+# Detect situations where it makes sense to unnest subfolder
+# e.g. glibc-2.20/glibc-2.20
+maybe_unnest() {
+  d=$(ls -1 "$1")
+  if [ $(echo "$d" | wc -l) -eq 1 -a "$d" = $(basename "$1") ]; then
+    d=$(ls -1 "$1")
+    for f in $(ls -A "$1/$d"); do   # Respect hidden files
+      # FIXME: mv will fail if one of $f matches $d
+      mv "$1/$d/$f" "$1/$(basename $f)"
+    done
+    rmdir "$1/$d"
+  fi
+}
+
+print_help_and_exit() {
+  cat <<EOF
+Syntax: $me OUT FILE..
+Puts FILEs to archive OUT; type of archive is based on extension OUT
+(e.g. tar+bzip2 for .tar.bz2 or .tbz2).
+
+Supported archives: .tar*, .zip, .7z, .rar.
+
+Example:
+  $ pk my.tar.gz 1.txt 2.txt
+  $ upk my.tar.gz
+  $ ls my/
+  1.txt 2.txt
+EOF
+  exit 1
+}
+
+me=$(basename $0)
+
+curdir="$PWD"
+
+test $# -eq 0 && print_help_and_exit
+
+TMP=$me.$$.tmp
+mkdir -p $TMP
+trap "rm -rf $TMP" EXIT
+
+if ! isemptydir $TMP; then
+  error "cowardly refusing to clear original contents of $src_no_ext"
+fi
+
+if test $# -lt 2; then
+  error 'no inputs'
+fi
+
+dst="$1"
+shift
+
+base_dst=$(basename "$dst")
+root=$(strip_ext "$base_dst")
+mkdir -p "$TMP/$root"
+
+for src; do
+  cp -r "$src" $TMP/$root/$(basename $src)
+done
+
+maybe_unnest "$TMP/$root"
+
+cd $TMP
+
+# Unpack
+case "$dst" in
+  # We ignore archives with non-trivial meta-info
+  # (.deb, .rpm, .a, .jar, etc.).
+  *.tar)
+    tar cf "$base_dst" "$root"
+    ;;
+  *.tar.gz|*.tgz)
+    tar czf "$base_dst" "$root"
+    ;;
+  *.tar.bz2|*.tbz2)
+    tar cjf "$base_dst" "$root"
+    ;;
+  *.tar.xz|*.txz)
+    tar cJf "$base_dst" "$root"
+    ;;
+  *.zip)
+    zip -r "$base_dst" "$root"
+     ;;
+  *.7z)
+    7zr a "$base_dst" "$root"
+    ;;
+  *.rar)
+    rar a "$base_dst" "$root"
+    ;;
+  *)
+    error "unsupported file format: $dst"
+    ;;
+esac
+
+cd "$curdir"
+
+mv "$TMP/$base_dst" "$dst"
+
