@@ -2,12 +2,6 @@
 
 # Unpacks files from archives of various types.
 # For details run without arguments.
-# 
-# TODO:
-# - support more popular formats (http://en.wikipedia.org/wiki/List_of_archive_formats)
-# - FIXMEs
-# - options (e.g. override destination dir, force unnesting, -h, options for archiver, etc.)
-# - support .gz files (?)
 
 set -e
 
