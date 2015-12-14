@@ -44,7 +44,7 @@ print_help_and_exit() {
 Syntax: $me FILE...
 Unpacks archives of various types (based on extension of FILE).
 
-Supported archives: .tar*, .zip, .jar, .apk, .7z, .rar, .deb, .rpm, .a.
+Supported archives: .tar*, .zip, .jar, .apk, .7z, .rar, .deb, .rpm, .a, winmail.dat.
 
 Example:
   $ pk my.tar.gz 1.txt 2.txt
@@ -64,6 +64,7 @@ test $# -eq 0 && print_help_and_exit
 for src; do
   src=$(readlink -f "$src")
   src_no_ext=$(strip_ext $(basename "$src"))
+  src_basename=$(basename $src)
 
   # Nest
   mkdir -p $src_no_ext
@@ -73,7 +74,7 @@ for src; do
   cd $src_no_ext
 
   # Unpack
-  case "$src" in
+  case "$src_basename" in
     *.tar)
       tar xf "$src"
       ;;
@@ -106,6 +107,9 @@ for src; do
       ;;
     *.a)
       ar x "$1"
+      ;;
+    winmail*.dat*)
+      tnef --file=$src
       ;;
     *)
       cd $curdir
