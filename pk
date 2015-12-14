@@ -14,6 +14,15 @@ warn() {
   echo >&2 "$(basename $0): warning: $@"
 }
 
+check_prog() {
+  for p in "$@"; do
+    if ! which "$p" > /dev/null 2>&1; then
+      error "your system is missing program '$p'" \
+        "which is required to pack this type of file"
+    fi
+  done
+}
+
 isemptydir() {
   #test $(ls -A "$1" | wc -l) = 0
   test -d "$1" && test $(find "$1" -maxdepth 0 -empty)
@@ -95,24 +104,31 @@ case "$dst" in
   # We ignore archives with non-trivial meta-info
   # (.deb, .rpm, .a, .jar, etc.).
   *.tar)
+    check_prog tar
     tar cf "$base_dst" "$root"
     ;;
   *.tar.gz|*.tgz)
+    check_prog tar gzip
     tar czf "$base_dst" "$root"
     ;;
   *.tar.bz2|*.tbz2)
+    check_prog tar bzip2
     tar cjf "$base_dst" "$root"
     ;;
   *.tar.xz|*.txz)
+    check_prog tar xz
     tar cJf "$base_dst" "$root"
     ;;
   *.zip)
+    check_prog zip
     zip -r "$base_dst" "$root"
      ;;
   *.7z)
+    check_prog 7zr
     7zr a "$base_dst" "$root"
     ;;
   *.rar)
+    check_prog rar
     rar a "$base_dst" "$root"
     ;;
   *)

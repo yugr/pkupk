@@ -14,6 +14,15 @@ warn() {
   echo >&2 "$(basename $0): warning: $@"
 }
 
+check_prog() {
+  for p in "$@"; do
+    if ! which "$p" > /dev/null 2>&1; then
+      error "your system is missing program '$p'" \
+        "which is required to unpack this type of file"
+    fi
+  done
+}
+
 isemptydir() {
   test -d "$1" && test $(find "$1" -maxdepth 0 -empty)
 }
@@ -76,39 +85,50 @@ for src; do
   # Unpack
   case "$src_basename" in
     *.tar)
+      check_prog tar
       tar xf "$src"
       ;;
     *.tar.gz | *.tgz)
+      check_prog tar gunzip
       tar xzf "$src"
       ;;
     *.tar.bz2 | *.tbz2)
+      check_prog tar bunzip2
       tar xjf "$src"
       ;;
     *.tar.xz | *.txz)
+      check_prog tar unxz
       tar xJf "$src"
       ;;
 #    *.gz)
 #      gunzip "$src"
 #      ;;
     *.zip | *.jar | *.apk)
+      check_prog unzip
       unzip "$src"
       ;;
     *.7z)
+      check_prog 7zr
       7zr x "$src"
       ;;
     *.rar)
+      check_prog unrar
       unrar e "$src"
       ;;
     *.deb)
+      check_prog dpkg
       dpkg -x "$src" .
       ;;
     *.rpm)
+      check_prog rpm2cpio
       rpm2cpio "$1" | cpio -id
       ;;
     *.a)
+      check_prog ar
       ar x "$1"
       ;;
     winmail*.dat*)
+      check_prog tnef
       tnef --file=$src
       ;;
     *)
