@@ -77,6 +77,7 @@ for src; do
 
   # Nest
   mkdir -p $src_no_ext
+  trap "cd $curdir && rm -rf $src_no_ext" EXIT
   if ! isemptydir "$src_no_ext"; then
     error "cowardly refusing to clear original contents of $src_no_ext"
   fi
@@ -133,7 +134,6 @@ for src; do
       ;;
     *)
       cd $curdir
-      rmdir $src_no_ext
       error "unsupported archive: $src"
       ;;
   esac
@@ -141,5 +141,6 @@ for src; do
   maybe_unnest "$PWD"
 
   cd $curdir
+  trap '' EXIT  # Unset
 done
 
