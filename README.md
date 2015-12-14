@@ -1,7 +1,7 @@
 Pk/upk grew out of inconvenience of working with existing zoo of archivers
 that have widely varying cmdline interfaces and different conventions.
 
-Pk/upk provide a simple common interface to all .tar\*, .zip, .7z, /zip,
+Pk/upk provide a simple common interface to all .tar\*, .zip, .7z, winmail.dat,
 .deb, .rpm, .apk, etc.
 
 To put all text files to my.tar.gz (under folder my/):
