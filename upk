@@ -117,7 +117,7 @@ for src; do
       check_prog unrar
       unrar e "$src"
       ;;
-    *.deb)
+    *.deb | *.ddeb)
       check_prog dpkg
       dpkg -x "$src" .
       ;;
