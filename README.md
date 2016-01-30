@@ -22,4 +22,5 @@ TODO:
 * FIXMEs
 * options (e.g. override destination dir, force unnesting, -h, options for archiver, etc.)
 * support .gz files (?)
+* shell autocompletions
 
