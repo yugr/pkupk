@@ -123,11 +123,11 @@ for src; do
       ;;
     *.rpm)
       check_prog rpm2cpio
-      rpm2cpio "$1" | cpio -id
+      rpm2cpio "$src" | cpio -id
       ;;
     *.a)
       check_prog ar
-      ar x "$1"
+      ar x "$src"
       ;;
     winmail*.dat*)
       check_prog tnef
