@@ -83,10 +83,10 @@ for src; do
 
   # Nest
   mkdir -p $src_no_ext
-  trap "cd $curdir && rm -rf $src_no_ext" EXIT
   if ! isemptydir "$src_no_ext"; then
     error "cowardly refusing to clear original contents of $src_no_ext"
   fi
+  trap "cd $curdir && rm -rf $src_no_ext" EXIT
   cd $src_no_ext
 
   # Unpack
