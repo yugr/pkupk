@@ -19,9 +19,13 @@ warn() {
   echo >&2 "$(basename $0): warning: $@"
 }
 
+check_prog_silent() {
+  which "$1" > /dev/null 2>&1
+}
+
 check_prog() {
   for p in "$@"; do
-    if ! which "$p" > /dev/null 2>&1; then
+    if ! check_prog_silent "$p"; then
       error "your system is missing program '$p'" \
         "which is required to unpack this type of file"
     fi
@@ -123,8 +127,14 @@ for src; do
       unrar e "$src"
       ;;
     *.deb | *.ddeb)
-      check_prog dpkg
-      dpkg -x "$src" .
+      if check_prog_silent dpkg; then
+        dpkg -x "$src" .
+      elif check_prog_silent ar; then
+        ar x "$src"
+      else
+        error "your system is missing programs 'dpkg' or 'ar'" \
+          "which is required to unpack this type of file"
+      fi
       ;;
     *.rpm)
       check_prog rpm2cpio
