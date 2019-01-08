@@ -82,7 +82,7 @@ mkdir -p $TMP
 trap "rm -rf $TMP" EXIT
 
 if ! isemptydir $TMP; then
-  error "cowardly refusing to clear original contents of $src_no_ext"
+  error "cowardly refusing to clear original contents of $TMP"
 fi
 
 if test $# -lt 2; then
@@ -97,7 +97,7 @@ root=$(strip_ext "$base_dst")
 mkdir -p "$TMP/$root"
 
 for src; do
-  cp -r "$src" $TMP/$root/$(basename $src)
+  cp -r "$src" "$TMP/$root/$(basename "$src")"
 done
 
 maybe_unnest "$TMP/$root"

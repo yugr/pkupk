@@ -33,7 +33,7 @@ check_prog() {
 }
 
 isemptydir() {
-  test -d "$1" && test $(find "$1" -maxdepth 0 -empty)
+  test -d "$1" && test "$(find "$1" -maxdepth 0 -empty)"
 }
 
 strip_ext() {
@@ -49,7 +49,7 @@ maybe_unnest() {
   d=$(ls -1 "$1")
   if [ $(echo "$d" | wc -l) -eq 1 -a "$d" = $(basename "$1") ]; then
     d=$(ls -1 "$1")
-    mv $d $d.$$   # Workaround if some $f matches $d
+    mv "$d" "$d.$$"   # Workaround if some $f matches $d
     d="$d.$$"
     for f in $(ls -A "$1/$d"); do   # Respect hidden files
       mv "$1/$d/$f" "$1/$(basename $f)"
@@ -82,16 +82,16 @@ test $# -eq 0 && print_help_and_exit
 
 for src; do
   src=$(readlink -f "$src")
-  src_no_ext=$(strip_ext $(basename "$src"))
-  src_basename=$(basename $src)
+  src_no_ext=$(strip_ext "$(basename "$src")")
+  src_basename=$(basename "$src")
 
   # Nest
-  mkdir -p $src_no_ext
+  mkdir -p "$src_no_ext"
   if ! isemptydir "$src_no_ext"; then
     error "cowardly refusing to clear original contents of $src_no_ext"
   fi
-  trap "cd $curdir && rm -rf $src_no_ext" EXIT
-  cd $src_no_ext
+  trap "cd '$curdir' && rm -rf '$src_no_ext'" EXIT
+  cd "$src_no_ext"
 
   # Unpack
   case "$src_basename" in
@@ -149,14 +149,13 @@ for src; do
       tnef --file=$src
       ;;
     *)
-      cd $curdir
       error "unsupported archive: $src"
       ;;
   esac
 
   maybe_unnest "$PWD"
 
-  cd $curdir
+  cd "$curdir"
   trap '' EXIT  # Unset
 done
 
