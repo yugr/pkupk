@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2015-2017 Yury Gribov
+# Copyright 2015-2019 Yury Gribov
 # 
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
@@ -78,7 +78,11 @@ me=$(basename $0)
 
 curdir="$PWD"
 
-test $# -eq 0 && print_help_and_exit
+case "${1:-h}" in
+-h | --help)
+  print_help_and_exit
+  ;;
+esac
 
 for src; do
   src=$(readlink -f "$src")
