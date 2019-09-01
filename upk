@@ -51,9 +51,12 @@ maybe_unnest() {
     d=$(ls -1 "$1")
     mv "$d" "$d.$$"   # Workaround if some $f matches $d
     d="$d.$$"
+    OIFS="$IFS"
+    IFS=$'\n'
     for f in $(ls -A "$1/$d"); do   # Respect hidden files
       mv "$1/$d/$f" "$1/$(basename $f)"
     done
+    OIFS="$IFS"
     rmdir "$1/$d"
   fi
 }
