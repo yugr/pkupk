@@ -143,8 +143,16 @@ for src; do
           "which is required to unpack this type of file"
       fi
       ;;
+    *.cab)
+      check_prog cabextract
+      cabextract "$src"
+      ;;
+    *.cpio)
+      check_prog cpio
+      cat "$src" | cpio -id
+      ;;
     *.rpm)
-      check_prog rpm2cpio
+      check_prog rpm2cpio cpio
       rpm2cpio "$src" | cpio -id
       ;;
     *.a)
