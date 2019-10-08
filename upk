@@ -111,6 +111,39 @@ for src; do
 
   # Unpack
   case "$src_basename" in
+    *.a)
+      check_prog ar
+      ar x "$src"
+      ;;
+    *.cab)
+      check_prog cabextract
+      cabextract "$src"
+      ;;
+    *.cpio)
+      check_prog cpio
+      cat "$src" | cpio -id
+      ;;
+    *.deb | *.ddeb)
+      if check_prog_silent dpkg; then
+        dpkg -x "$src" .
+      elif check_prog_silent ar; then
+        ar x "$src"
+      else
+        error "your system is missing programs 'dpkg' or 'ar'" \
+          "which is required to unpack this type of file"
+      fi
+      ;;
+#    *.gz)
+#      gunzip "$src"
+#      ;;
+    *.rar)
+      check_prog unrar
+      unrar e "$src"
+      ;;
+    *.rpm)
+      check_prog rpm2cpio cpio
+      rpm2cpio "$src" | cpio -id
+      ;;
     *.tar)
       check_prog tar
       tar xf "$src"
@@ -127,9 +160,10 @@ for src; do
       check_prog tar unxz
       tar xJf "$src"
       ;;
-#    *.gz)
-#      gunzip "$src"
-#      ;;
+    winmail*.dat*)
+      check_prog tnef
+      tnef --file=$src
+      ;;
     *.zip | *.jar | *.apk)
       check_prog unzip
       unzip "$src"
@@ -137,40 +171,6 @@ for src; do
     *.7z)
       check_prog 7zr
       7zr x "$src"
-      ;;
-    *.rar)
-      check_prog unrar
-      unrar e "$src"
-      ;;
-    *.deb | *.ddeb)
-      if check_prog_silent dpkg; then
-        dpkg -x "$src" .
-      elif check_prog_silent ar; then
-        ar x "$src"
-      else
-        error "your system is missing programs 'dpkg' or 'ar'" \
-          "which is required to unpack this type of file"
-      fi
-      ;;
-    *.cab)
-      check_prog cabextract
-      cabextract "$src"
-      ;;
-    *.cpio)
-      check_prog cpio
-      cat "$src" | cpio -id
-      ;;
-    *.rpm)
-      check_prog rpm2cpio cpio
-      rpm2cpio "$src" | cpio -id
-      ;;
-    *.a)
-      check_prog ar
-      ar x "$src"
-      ;;
-    winmail*.dat*)
-      check_prog tnef
-      tnef --file=$src
       ;;
     *)
       error "unsupported archive: $src"

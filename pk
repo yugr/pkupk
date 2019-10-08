@@ -115,6 +115,10 @@ cd $TMP
 case "$dst" in
   # We ignore archives with non-trivial meta-info
   # (.deb, .rpm, .a, .jar, etc.).
+  *.rar)
+    check_prog rar
+    rar a "$base_dst" "$root"
+    ;;
   *.tar)
     check_prog tar
     tar cf "$base_dst" "$root"
@@ -138,10 +142,6 @@ case "$dst" in
   *.7z)
     check_prog 7zr
     7zr a "$base_dst" "$root"
-    ;;
-  *.rar)
-    check_prog rar
-    rar a "$base_dst" "$root"
     ;;
   *)
     error "unsupported file format: $dst"
