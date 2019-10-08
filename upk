@@ -26,8 +26,17 @@ check_prog_silent() {
 check_prog() {
   for p in "$@"; do
     if ! check_prog_silent "$p"; then
+      details=
+      # TODO: rpm
+      if which apt-file 2>&1; then
+        details=":
+$(apt-file $p)"
+      elif which yum 2>&1; then
+        details=":
+$(yum whatprovides $p)"
+      fi
       error "your system is missing program '$p'" \
-        "which is required to unpack this type of file"
+            "which is required to unpack this type of file$details"
     fi
   done
 }
