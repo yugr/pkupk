@@ -47,7 +47,8 @@ maybe_unnest() {
   if [ $(echo "$d" | wc -l) -eq 1 -a "$d" = $(basename "$1") ]; then
     d=$(ls -1 "$1")
     OIFS="$IFS"
-    IFS=$'\n'
+    IFS='
+'
     for f in $(ls -A "$1/$d"); do   # Respect hidden files
       # FIXME: mv will fail if one of $f matches $d
       mv "$1/$d/$f" "$1/$(basename $f)"
