@@ -167,8 +167,13 @@ for src; do
       tnef --file=$src
       ;;
     *.zip | *.jar | *.apk)
-      check_prog unzip
-      unzip "$src"
+      if check_prog_silent 7z; then
+        # 7z supports newer ZIP formats
+        7z x "$src"
+      else
+        check_prog unzip
+        unzip "$src"
+      fi
       ;;
     *.7z)
       check_prog 7zr
