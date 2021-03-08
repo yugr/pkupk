@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2015-2020 Yury Gribov
+# Copyright 2015-2021 Yury Gribov
 # 
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
@@ -87,7 +87,7 @@ esac
 
 TMP=$me.$$.tmp
 mkdir -p $TMP
-trap "rm -rf $TMP" EXIT
+trap "rm -rf $TMP" EXIT INT TERM
 
 if ! isemptydir $TMP; then
   error "cowardly refusing to clear original contents of $TMP"

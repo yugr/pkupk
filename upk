@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright 2015-2020 Yury Gribov
+# Copyright 2015-2021 Yury Gribov
 # 
 # Use of this source code is governed by MIT license that can be
 # found in the LICENSE.txt file.
@@ -123,7 +123,7 @@ for src; do
   if ! isemptydir "$src_no_ext"; then
     error "cowardly refusing to clear original contents of $src_no_ext"
   fi
-  trap "cd '$curdir' && rm -rf '$src_no_ext'" EXIT
+  trap "cd '$curdir' && rm -rf '$src_no_ext'" EXIT INT TERM
   cd "$src_no_ext"
 
   # Unpack
@@ -202,6 +202,6 @@ for src; do
   maybe_unnest "$PWD"
 
   cd "$curdir"
-  trap '' EXIT  # Unset
+  trap '' EXIT INT TERM  # Unset
 done
 
