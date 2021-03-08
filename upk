@@ -76,7 +76,19 @@ print_help_and_exit() {
 Syntax: $me FILE...
 Unpacks archives of various types (based on extension of FILE).
 
-Supported archives: .tar*, .zip, .jar, .apk, .7z, .rar, .deb, .rpm, .a, winmail.dat.
+Supported archives:
+  .a
+  .apk
+  .cab
+  .cpio
+  .deb
+  .jar
+  .rar
+  .rpm
+  .tar*
+  winmail.dat
+  .zip
+  .7z
 
 Example:
   $ pk my.tar.gz 1.txt 2.txt
