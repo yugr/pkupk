@@ -128,7 +128,7 @@ for src; do
 
   # Unpack
   case "$src_basename" in
-    *.a)
+    *.a | *.ar)
       check_prog ar
       ar x "$src"
       ;;
@@ -173,6 +173,10 @@ for src; do
       check_prog tar bunzip2
       tar xjf "$src"
       ;;
+    *.tar.lz | *.tar.lzip | *.tlz)
+      check_prog tar lzip
+      tar --lzip xf "$src"
+      ;;
     *.tar.xz | *.txz)
       check_prog tar unxz
       tar xJf "$src"
@@ -181,6 +185,7 @@ for src; do
       check_prog tnef
       tnef --file=$src
       ;;
+    *.lzma)
     *.zip | *.jar | *.apk)
       if check_prog_silent 7z; then
         # 7z supports newer ZIP formats
@@ -189,6 +194,10 @@ for src; do
         check_prog unzip
         unzip "$src"
       fi
+      ;;
+    *.lz | *.lzip | *.lzma)
+      check_prog lzip
+      lzip -d "$src"
       ;;
     *.7z)
       check_prog 7zr

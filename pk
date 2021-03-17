@@ -101,7 +101,15 @@ cd $TMP
 # Pack
 case "$dst" in
   # We ignore archives with non-trivial meta-info
-  # (.deb, .rpm, .a, .jar, etc.).
+  # (.deb, .rpm, .jar, etc.).
+  *.a)
+    check_prog ar
+    ar rcs "$base_dst" "$root"
+    ;;
+  *.ar)
+    check_prog ar
+    ar rc "$base_dst" "$root"
+    ;;
   *.rar)
     check_prog rar
     rar a "$base_dst" "$root"
@@ -110,15 +118,19 @@ case "$dst" in
     check_prog tar
     tar cf "$base_dst" "$root"
     ;;
-  *.tar.gz|*.tgz)
+  *.tar.gz | *.tgz)
     check_prog tar gzip
     tar czf "$base_dst" "$root"
     ;;
-  *.tar.bz2|*.tbz2)
+  *.tar.bz2 | *.tbz2)
     check_prog tar bzip2
     tar cjf "$base_dst" "$root"
     ;;
-  *.tar.xz|*.txz)
+  *.tar.lz | *.tlz)
+    check_prog tar lzip
+    tar --lzip cf "$base_dst" "$root"
+    ;;
+  *.tar.xz | *.txz)
     check_prog tar xz
     tar cJf "$base_dst" "$root"
     ;;
@@ -129,6 +141,10 @@ case "$dst" in
   *.7z)
     check_prog 7zr
     7zr a "$base_dst" "$root"
+    ;;
+  *.lz | *.lzip | *.lzma)
+    check_prog lzip
+    lzip -o "$base_dst" "$root"
     ;;
   *)
     error "unsupported file format: $dst"
