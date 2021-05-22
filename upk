@@ -114,15 +114,11 @@ for src; do
   src_no_ext=$(strip_ext "$(basename "$src")")
   src_basename=$(basename "$src")
 
-  if ! test -f $src; then
-    error "file $src does not exist"
-  fi
+  test -f $src || error "file $src does not exist"
 
   # Nest
   mkdir -p "$src_no_ext"
-  if ! isemptydir "$src_no_ext"; then
-    error "cowardly refusing to clear original contents of $src_no_ext"
-  fi
+  isemptydir "$src_no_ext" || error "cowardly refusing to clear original contents of $src_no_ext"
   trap "cd '$curdir' && rm -rf '$src_no_ext'" EXIT INT TERM
   cd "$src_no_ext"
 
@@ -185,8 +181,7 @@ for src; do
       check_prog tnef
       tnef --file=$src
       ;;
-    *.lzma)
-    *.zip | *.jar | *.apk)
+    *.lzma | *.zip | *.jar | *.apk)
       if check_prog_silent 7z; then
         # 7z supports newer ZIP formats
         7z x "$src"

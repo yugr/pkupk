@@ -88,10 +88,12 @@ root=$(strip_ext "$base_dst")
 # Detect situations where it makes sense to unnest subfolder
 # e.g. glibc-2.20/glibc-2.20
 if test $# -eq 1 -a $(basename "$1") = $root; then
+  test -e $1 || error "File (or directory) $1 does not exist"
   cp -r "$1" "$TMP"
 else
   mkdir -p "$TMP/$root"
   for src; do
+    test -e $src || error "File (or directory) $src does not exist"
     cp -r "$src" "$TMP/$root"
   done
 fi
