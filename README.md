@@ -8,6 +8,10 @@ To put all text files to my.tar.gz (under folder my/):
 ```
 $ pk my.tar.gz *.txt
 ```
+To put directory `dir` into `dir.tgz` just do
+```
+$ pk dir.tgz
+```
 
 To extract files from my.tar.gz to folder my/ (optionally creating it
 if it's missing in .tar.gz):

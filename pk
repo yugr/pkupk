@@ -42,9 +42,10 @@ strip_ext() {
 
 print_help_and_exit() {
   cat <<EOF
-Syntax: $me OUT FILE..
+Syntax: $me OUT [FILE]..
 Puts FILEs to archive OUT; type of archive is based on extension OUT
-(e.g. tar+bzip2 for .tar.bz2 or .tbz2).
+(e.g. tar+bzip2 for .tar.bz2 or .tbz2). Default FILE is inferred from OUT
+by removing extension.
 
 Supported archives: .tar*, .zip, .7z, .rar.
 
@@ -75,8 +76,11 @@ if ! isemptydir $TMP; then
   error "cowardly refusing to clear original contents of $TMP"
 fi
 
-if test $# -lt 2; then
+if test $# = 0; then
   error 'no inputs'
+elif test $# = 1; then
+  src=$(echo "$1" | sed 's/\.tar\.[^.]*$\|\.[^.]*$//')
+  set -- "$1" "$src"
 fi
 
 dst="$1"
