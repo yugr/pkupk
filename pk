@@ -20,7 +20,7 @@ warn() {
 }
 
 check_prog() {
-  for p in "$@"; do
+  for p; do
     if ! which "$p" > /dev/null 2>&1; then
       error "your system is missing program '$p'" \
         "which is required to pack this type of file"

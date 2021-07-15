@@ -24,7 +24,7 @@ check_prog_silent() {
 }
 
 check_prog() {
-  for p in "$@"; do
+  for p; do
     if ! check_prog_silent "$p"; then
       details=
       # TODO: rpm
