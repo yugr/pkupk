@@ -28,10 +28,10 @@ check_prog() {
     if ! check_prog_silent "$p"; then
       details=
       # TODO: rpm
-      if which apt-file 2>&1; then
+      if which apt-file 2>/dev/null; then
         details=":
 $(apt-file $p)"
-      elif which yum 2>&1; then
+      elif which yum 2>/dev/null; then
         details=":
 $(yum whatprovides $p)"
       fi
@@ -39,6 +39,11 @@ $(yum whatprovides $p)"
             "which is required to unpack this type of file$details"
     fi
   done
+}
+
+error_missing() {
+  error "your system is missing one of the programs ($(echo "$@" | tr ' ' ', ')) "
+    "needed to unpack this type of file"
 }
 
 isemptydir() {
@@ -142,16 +147,20 @@ for src; do
       elif check_prog_silent ar; then
         ar x "$src"
       else
-        error "your system is missing programs 'dpkg' or 'ar'" \
-          "which is required to unpack this type of file"
+        error_missing dpkg ar
       fi
       ;;
 #    *.gz)
 #      gunzip "$src"
 #      ;;
     *.rar)
-      check_prog unrar
-      unrar e "$src"
+      if check_prog_silent unrar; then
+        unrar e "$src"
+      elif check_prog_silent 7z; then
+        7z x "$src"
+      else
+        error_missing unrar 7z
+      fi
       ;;
     *.rpm)
       check_prog rpm2cpio cpio
@@ -185,9 +194,10 @@ for src; do
       if check_prog_silent 7z; then
         # 7z supports newer ZIP formats
         7z x "$src"
-      else
-        check_prog unzip
+      elif check_prog_silent unzip; then
         unzip "$src"
+      else
+        error_missing 7z unzip
       fi
       ;;
     *.lz | *.lzip | *.lzma)
