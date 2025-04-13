@@ -155,7 +155,7 @@ for src; do
 #      ;;
     *.rar)
       if check_prog_silent unrar; then
-        unrar e "$src"
+        unrar x "$src"
       elif check_prog_silent 7z; then
         7z x "$src"
       else
