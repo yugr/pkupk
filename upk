@@ -119,7 +119,7 @@ for src; do
   src_no_ext=$(strip_ext "$(basename "$src")")
   src_basename=$(basename "$src")
 
-  test -f $src || error "file $src does not exist"
+  test -f "$src" || error "file $src does not exist"
 
   # Nest
   mkdir -p "$src_no_ext"
